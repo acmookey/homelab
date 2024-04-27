@@ -1,0 +1,94 @@
+identity_providers:
+  oidc:
+    jwks:
+      - algorithm: 'RS256'
+        key: {{ secret "/config/.secrets/oidc_jwks_private.pem" | mindent 10 "|" | msquote }}
+    cors:
+      endpoints:
+        - 'authorization'
+        - 'pushed-authorization-request'
+        - 'token'
+        - 'revocation'
+        - 'introspection'
+        - 'userinfo'
+      allowed_origins:
+        - '*'
+    clients:
+      - client_id: 'portainer'
+        client_name: 'Portainer'
+        client_secret: 'yout_client_secret'
+        public: false
+        authorization_policy: 'one_factor'
+        redirect_uris:
+          - 'https://portainer.test.com'
+        scopes:
+          - 'openid'
+          - 'profile'
+          - 'groups'
+          - 'email'
+        userinfo_signed_response_alg: 'none'
+      - client_id: 'uptime-kuma'
+        client_name: 'Uptime Kuma'
+        client_secret: 'yout_client_secret'
+        public: false
+        scopes:
+          - 'authelia.bearer.authz'
+        audience:
+          - 'https://portainer.test.com'
+        grant_types:
+          - 'client_credentials'
+        requested_audience_mode: 'implicit'
+        token_endpoint_auth_method: 'client_secret_basic'
+      - client_id: 'gitea'
+        client_name: 'Gitea'
+        client_secret: 'yout_client_secret'
+        public: false
+        authorization_policy: 'one_factor'
+        redirect_uris:
+          - 'https://gitea.test.com/user/oauth2/authelia/callback'
+        scopes:
+          - 'openid'
+          - 'email'
+          - 'profile'
+        userinfo_signed_response_alg: 'none'
+      - client_id: 'freshrss'
+        client_name: 'freshrss'
+        client_secret: 'yout_client_secret'
+        public: false
+        authorization_policy: 'one_factor'
+        redirect_uris:
+          - 'https://rss.test.com:443/i/oidc/'
+        scopes:
+          - 'openid'
+          - 'groups'
+          - 'email'
+          - 'profile'
+        token_endpoint_auth_method: 'client_secret_basic'
+        userinfo_signed_response_alg: 'none'
+      - client_id: 'wikijs'
+        client_name: 'wiki.js'
+        client_secret: 'yout_client_secret'
+        public: false
+        authorization_policy: one_factor
+        scopes:
+          - 'openid'
+          - 'email'
+          - 'profile'
+        redirect_uris:
+          - https://wiki.test.com/login/[your-uuid]/callback
+        userinfo_signed_response_alg: 'none'
+        userinfo_signing_algorithm: none
+        token_endpoint_auth_method: 'client_secret_post'
+        response_modes:
+          - form_post
+      - id: linkding
+        description: Linkding
+        secret: 'yout_client_secret'
+        public: false
+        token_endpoint_auth_method: client_secret_post
+        scopes:
+          - openid
+          - email
+          - profile
+        redirect_uris:
+          - https://linkding.test.com/oidc/callback/

@@ -1,0 +1,142 @@
+theme: 'auto'
+default_2fa_method: 'totp'
+server:
+  address: 'tcp://:9091/'
+  disable_healthcheck: false
+  headers:
+    csp_template: ''
+  buffers:
+    read: 4096
+    write: 4096
+  timeouts:
+    read: '6 seconds'
+    write: '6 seconds'
+    idle: '30 seconds'
+  endpoints:
+    authz:
+      auth-request:
+        implementation: 'AuthRequest'
+      uptime-kuma:
+        implementation: 'AuthRequest'
+        authn_strategies:
+          - name: 'HeaderAuthorization'
+            schemes:
+              - 'Basic'
+              - 'Bearer'
+          - name: 'CookieSession'
+log:
+  level: 'info'
+  file_path: '/var/log/authelia/authelia.log'
+
+telemetry:
+  metrics:
+    enabled: false
+    address: 'tcp://:9959/metrics'
+    buffers:
+      read: 4096
+      write: 4096
+    timeouts:
+      read: '6 seconds'
+      write: '6 seconds'
+      idle: '30 seconds'
+
+totp:
+  disable: false
+  issuer: 'authelia.test.com'
+  algorithm: 'SHA1'
+  digits: 6
+  period: 30
+  skew: 1
+  secret_size: 32
+  allowed_algorithms:
+    - 'SHA1'
+  allowed_digits:
+    - 6
+  allowed_periods:
+    - 30
+  disable_reuse_security_policy: false
+
+webauthn:
+  disable: false
+  timeout: '60 seconds'
+  display_name: 'Authelia'
+  attestation_conveyance_preference: 'indirect'
+  user_verification: 'preferred'
+
+identity_validation:
+  reset_password:
+    jwt_lifespan: '5 minutes'
+    jwt_algorithm: 'HS256'
+  elevated_session:
+    code_lifespan: '5 minutes'
+    elevation_lifespan: '10 minutes'
+    characters: 8
+    require_second_factor: false
+    skip_second_factor: false
+
+ntp:
+  address: 'ntp.aliyun.com'
+  version: 4
+  max_desync: '3 seconds'
+  disable_startup_check: false
+  disable_failure: false
+
+password_policy:
+  standard:
+    enabled: true
+    min_length: 8
+    max_length: 0
+    require_uppercase: true
+    require_lowercase: true
+    require_number: true
+    require_special: true
+  zxcvbn:
+    enabled: false
+    min_score: 3
+
+session:
+  # secret: 'insecure_session_secret'
+  name: 'authelia_session'
+  same_site: 'lax'
+  inactivity: '5m'
+  expiration: '1d'
+  remember_me: '7d'
+  cookies:
+    - domain: 'test.com'
+      authelia_url: 'https://authelia.test.com'
+      same_site: 'lax'
+      inactivity: '5m'
+      expiration: '1d'
+      remember_me: '7d'
+  redis:
+    host: 'yout_redis_host'
+    port: 6379
+    database_index: 15
+
+regulation:
+  max_retries: 3
+  find_time: '2 minutes'
+  ban_time: '5 minutes'
+
+storage:
+  postgres:
+    address: 'tcp://your_postgres_host:5432'
+    database: 'authelia'
+    schema: 'public'
+    username: 'authelia'
+    timeout: '5 seconds'
+
+notifier:
+  disable_startup_check: true
+  smtp:
+    address: 'smtp://127.0.0.1:25'
+    timeout: '5s'
+    username: 'test'
+    password: 'password'
+    sender: "Authelia <admin@test.com>"
+    identifier: 'localhost'
+    subject: "[Authelia] {title}"
+    startup_check_address: 'test@authelia.com'
+    disable_require_tls: false
+    disable_starttls: false
+    disable_html_emails: false

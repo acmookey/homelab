@@ -1,0 +1,54 @@
+---
+version: '3.8'
+services:
+  authelia:
+    container_name: 'authelia'
+    image: 'authelia/authelia:4.38.7'
+    restart: 'unless-stopped'
+    env_file: ./conf/authelia/.env
+    network_mode: bridge
+    ports:
+      - 9091:9091
+    volumes:
+      - './conf/authelia:/config'
+      - '/var/log/authelia:/var/log/authelia'
+    command:
+      - 'authelia'
+      - '--config=/config/acl.yml'
+      - '--config=/config/auth-ldap.yml'
+      - '--config=/config/config.yml'
+      - '--config=/config/identity-provider.yml'
+  lldap:
+    container_name: lldap
+    image: lldap/lldap:stable-debian
+    restart: unless-stopped
+    env_file: ./conf/lldap/.env
+    network_mode: bridge
+    ports:
+      # For LDAP, not recommended to expose, see Usage section.
+      - "3890:3890"
+      # For LDAPS (LDAP Over SSL), enable port if LLDAP_LDAPS_OPTIONS__ENABLED set true, look env below
+      #- "6360:6360"
+      # For the web front-end
+      - "17170:17170"
+    volumes:
+      - "./conf/lldap:/config"
+      - "/opt/data/lldap:/data"
+    command:
+      - 'run'
+      - '--config-file=/config/config.toml'
+    healthcheck:
+      test: "/app/lldap healthcheck --config-file /config/config.toml"
+      interval: 60s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+  whoami:
+    container_name: whoami
+    image: traefik/whoami
+    restart: unless-stopped
+    network_mode: bridge
+    ports:
+      - 8081:80
+    environment:
+      TZ: 'Asia/Shanghai'

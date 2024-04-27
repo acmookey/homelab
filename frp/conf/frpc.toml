@@ -1,0 +1,41 @@
+auth.method = "token"
+auth.token  = "your_auth_token"
+
+# 用户名，设置此参数后，代理名称会被修改为 {user}.{proxyName}，避免代理名称和其他用户冲突
+user = "your_username"
+
+serverAddr = "{your_Public_IP}"
+serverPort = 8000
+
+# 日志输出文件路径(Docker容器内部的路径)
+log.to      = "/var/mylogs/frpc.log"
+log.level   = "info"
+log.maxDays = 7
+log.disablePrintColor = false
+
+webServer.addr     = "127.0.0.1"
+webServer.port     = 8001
+# HTTP BasicAuth 用户名
+webServer.user     = "{your_webServer_user}"
+# HTTP BasicAuth 密码
+webServer.password = "{your_webServer_password}"
+
+transport.protocol            = "tcp"
+# 连接服务端的超时时间，默认为 10s
+transport.dialServerTimeout   = 10
+transport.dialServerKeepalive = 30
+# TCP 多路复用，默认启用
+transport.tcpMux = true
+# tcp_mux 的心跳检查间隔时间
+transport.tcpMuxKeepaliveInterval = 30
+# 向服务端发送心跳包的间隔时间，默认为 30s。建议启用 tcp_mux_keepalive_interval，将此值设置为 -1
+transport.heartbeatInterval = -1
+transport.heartbeatTimeout  = 90
+
+# 以下是TCP协议的代理示例,即将本地的 12345 端口代理到 服务端(ECS)的54321端口
+## 即: tcp://{公网IP}:54321 <=> tcp://127.0.0.1:12345
+[[proxies]]
+name       = "ssh"
+type       = "tcp"
+localPort  = 12345
+remotePort = 54321

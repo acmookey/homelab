@@ -1,0 +1,16 @@
+version: '3.9'
+services:
+  frpc:
+    container_name: frpc
+    image: 'snowdreamtech/frpc:0.57.0'
+    volumes:
+      - '/var/log/frpc:/var/mylogs'
+      - './conf/frpc.toml:/etc/frp/frpc.toml'
+    restart: always
+    network_mode: host
+    healthcheck:
+      test: "nc -z 127.0.0.1 8001 || exit 1"
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s

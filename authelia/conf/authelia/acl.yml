@@ -1,0 +1,26 @@
+access_control:
+  default_policy: 'deny'
+  networks:
+    - name: 'internal'
+      networks:
+        - '10.0.0.0/8'
+        - '172.16.0.0/12'
+        - '192.168.0.0/18'
+  rules:
+    - domain:
+        - 'authelia.test.com'
+      policy: bypass
+    - domain:
+        - 'uptime.test.com'
+      subject: 'oauth2:client:uptime-kuma'
+      policy: 'one_factor'
+    - domain:
+        - 'whoami.test.com'
+      policy: two_factor
+    - domain:
+        - 'it-tools.test.com'
+        - 'dozzle.test.com'
+      subject:
+        - 'group:dev'
+        - 'user:test'
+      policy: one_factor

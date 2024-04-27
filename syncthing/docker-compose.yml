@@ -1,0 +1,74 @@
+version: "3"
+services:
+  stdiscosrv:
+    container_name: stdiscosrv
+    image: syncthing/discosrv:1.27
+    platform: linux/arm64
+    restart: unless-stopped    
+    user: 118:125 # 修改成实际的 [用户uid]:[用户gid]
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /opt/data/stdiscosrv:/var/stdiscosrv
+    network_mode: host
+    entrypoint:
+      - /bin/entrypoint.sh
+      - /bin/stdiscosrv
+      - -http
+      - -listen=127.0.0.1:8060
+    healthcheck:
+      test: "nc -z 127.0.0.1 8060 || exit 1"
+      interval: 1m0s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+  strelaysrv:
+    container_name: strelaysrv
+    image: syncthing/relaysrv:1.27
+    platform: linux/arm64
+    restart: unless-stopped
+    user: 118:125 # 修改成实际的 [用户uid]:[用户gid]
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /opt/data/strelaysrv:/var/strelaysrv
+    network_mode: host
+    entrypoint:
+      - /bin/entrypoint.sh
+      - /bin/strelaysrv
+      - -nat=true
+      - -pools=""
+      - -listen=0.0.0.0:8061
+      - -token=change_to_your_token
+    healthcheck:
+      test: "nc -z 127.0.0.1 8061 || exit 1"
+      interval: 1m0s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+  syncthing:
+    container_name: syncthing
+    image: syncthing/syncthing:1.27
+    depends_on:
+      - stdiscosrv
+      - strelaysrv
+    platform: linux/arm64
+    hostname: pi-ubuntu
+    restart: unless-stopped
+    user: 118:125 # 修改成实际的 [用户uid]:[用户gid]
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /opt/data/syncthing:/var/syncthing
+    network_mode: host
+    healthcheck:
+      test: "curl -fkLsS -m 2 127.0.0.1:8062/rest/noauth/health | grep -o --color=never OK || exit 1"
+      interval: 1m0s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    entrypoint:
+      - /bin/entrypoint.sh
+      - /bin/syncthing
+      - serve
+      - --no-browser
+      - --no-restart
+      - --logflags=0
+      - --gui-address=http://0.0.0.0:8062

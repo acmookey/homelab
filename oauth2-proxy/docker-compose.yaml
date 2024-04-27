@@ -1,0 +1,15 @@
+version: '3.3'
+services:
+  oauth2-proxy:
+    container_name: oauth2-proxy
+    image: quay.io/oauth2-proxy/oauth2-proxy:latest-arm64
+    restart: always
+    env_file: ./conf/.env
+    command:
+      - --config
+      - /etc/oauth2-proxy.cfg
+    volumes:
+      - ./conf/oauth2-proxy.cfg:/etc/oauth2-proxy.cfg
+    network_mode: bridge
+    ports:
+      - 4180:4180
